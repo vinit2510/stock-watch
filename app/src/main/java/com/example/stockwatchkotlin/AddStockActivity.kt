@@ -6,12 +6,14 @@ import android.os.Bundle
 import android.widget.SearchView.OnQueryTextListener
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.android.volley.RequestQueue
 import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import kotlinx.android.synthetic.main.activity_add_stock.*
 import kotlinx.android.synthetic.main.activity_detail_screen.*
+import kotlinx.android.synthetic.main.activity_main.*
 import org.json.JSONException
 import java.util.*
 import kotlin.collections.ArrayList
@@ -54,19 +56,7 @@ class AddStockActivity : AppCompatActivity() {
         searchAdapter = CustomAdapter(this, nameArr.toTypedArray(), symbolArr.toTypedArray(), idArr.toTypedArray(), 2, ArrayList(0))
         list_view.adapter = searchAdapter
 
-        list_view.setOnItemClickListener { adapterView, view, i, l ->
 
-            val dataModel = DataModel(0, nameArr[i], symbolArr[i])
-            val dbHandler = DatabaseHandler(this)
-            val addData = dbHandler.addEntry(dataModel)
-
-            if (addData > 0) {
-                Toast.makeText(this, "Added Successfully", Toast.LENGTH_SHORT).show()
-                setResult(Activity.RESULT_OK)
-
-                finish()
-            }
-        }
 
         search_view.setOnQueryTextListener(object : OnQueryTextListener {
             override fun onQueryTextSubmit(p0: String?): Boolean {
@@ -100,7 +90,7 @@ class AddStockActivity : AppCompatActivity() {
                                     symbolArr.add(searches.getString("symbol"))
                                     idArr.add(i)
                                 }
-
+                                list_view.layoutManager = LinearLayoutManager(applicationContext)
                                 searchAdapter = CustomAdapter(
                                     this@AddStockActivity,
                                     nameArr.toTypedArray(),
@@ -161,5 +151,18 @@ class AddStockActivity : AppCompatActivity() {
 
         })
 
+    }
+
+    fun addStock(name: String, symbol: String){
+        val dataModel = DataModel(0, name, symbol)
+        val dbHandler = DatabaseHandler(this)
+        val addData = dbHandler.addEntry(dataModel)
+
+        if (addData > 0) {
+            Toast.makeText(this, "Added Successfully", Toast.LENGTH_SHORT).show()
+            setResult(Activity.RESULT_OK)
+
+            finish()
+        }
     }
 }

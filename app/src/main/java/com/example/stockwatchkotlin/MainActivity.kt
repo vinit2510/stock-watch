@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.android.volley.Request
 import com.android.volley.RequestQueue
 import com.android.volley.Response
@@ -70,44 +71,9 @@ class MainActivity : AppCompatActivity() {
 
         listView.isLongClickable = true
 
-        listView.setOnItemLongClickListener { adapterView, view, i, l ->
-            val builder = AlertDialog.Builder(this)
 
-            builder.setTitle("Delete")
-            builder.setMessage("Do you want to delete ${symbolArr[i]}")
-            builder.setIcon(R.drawable.ic_round_delete_24)
 
-            builder.setPositiveButton("Yes") { dialogInterface, which ->
 
-                val dbHandler = DatabaseHandler(this)
-                val isDeleted = dbHandler.deleteEntry(DataModel(idArr[i], nameArr[i], symbolArr[i]))
-                if (isDeleted > 0) {
-                    Toast.makeText(this, "Deleted", Toast.LENGTH_SHORT).show()
-                    getListFromDB()
-                    changeAl.removeAt(i)
-                    setChangePriceCard()
-                }
-            }
-
-            builder.setNegativeButton("No") { dialogInterface, which ->
-
-            }
-
-            val alertDialog: AlertDialog = builder.create()
-            alertDialog.setCancelable(false)
-            alertDialog.show()
-
-            false
-        }
-
-        listView.setOnItemClickListener { adapterView, view, i, l ->
-
-            val intent = Intent(this, DetailScreenActivity::class.java)
-            intent.putExtra("stock_symbol", symbolArr[i])
-            intent.putExtra("stock_name", nameArr[i])
-            startActivity(intent)
-
-        }
 
         add_new.setOnClickListener {
             val intent = Intent(this, AddStockActivity::class.java)
@@ -187,7 +153,7 @@ class MainActivity : AppCompatActivity() {
                             val stockDetails = jsonArray.getJSONObject(i)
                             changeAl.add(" ${String.format("%.1f", stockDetails.getDouble("regularMarketPrice"))} \n (${String.format("%.2f", stockDetails.getDouble("regularMarketChangePercent"))}% ")
                         }
-
+                        listView.layoutManager = LinearLayoutManager(applicationContext)
                         myAdapter = CustomAdapter(this, nameArr, symbolArr, idArr, 3, changeAl)
                         listView.adapter = myAdapter
 
@@ -253,4 +219,31 @@ class MainActivity : AppCompatActivity() {
     }
 
 
+    fun deleteStock(i : Int){
+        val builder = AlertDialog.Builder(this)
+
+        builder.setTitle("Delete")
+        builder.setMessage("Do you want to delete ${symbolArr[i]}")
+        builder.setIcon(R.drawable.ic_round_delete_24)
+
+        builder.setPositiveButton("Yes") { dialogInterface, which ->
+
+            val dbHandler = DatabaseHandler(this)
+            val isDeleted = dbHandler.deleteEntry(DataModel(idArr[i], nameArr[i], symbolArr[i]))
+            if (isDeleted > 0) {
+                Toast.makeText(this, "Deleted", Toast.LENGTH_SHORT).show()
+                getListFromDB()
+                changeAl.removeAt(i)
+                setChangePriceCard()
+            }
+        }
+
+        builder.setNegativeButton("No") { dialogInterface, which ->
+
+        }
+
+        val alertDialog: AlertDialog = builder.create()
+        alertDialog.setCancelable(false)
+        alertDialog.show()
+    }
 }
